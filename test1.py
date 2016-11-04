@@ -43,9 +43,11 @@ def nectar(graph, vertex_ID):
 # ---------------------------------------------------------------------------------------
 # Creating the graph G<V,E>
 
-# g = Graph.GRG(10, 0.2)
-# #summary(g)
-# print(g)
+# Generate a famous graph
+# my_graph = Famous("Tutte")
+# num_of_vertices = 50
+# fw_prob = 0.8
+# my_graph = Forest_Fire(n, fw_prob, bw_factor=0.1, ambs=2, directed=False)
 
 # Create graph of 7 vertices and 9 edges.
 my_graph = Graph([(0,1), (0,2), (2,3), (3,4), (4,2), (2,5), (5,0), (6,3), (5,6)])
