@@ -78,8 +78,14 @@ def nectar(graph, vertex_ID):
 
 	gain_exp = compute_gain(modified_clusters[1], cluster_membership, vertex, 
 		vertex_has_these_edges, vertex_neighbors, graph)
+	all_gains = []
+	for ind, tmp in enumerate(vertex_neighbors_clusters):
+		all_gains.append(compute_gain(modified_clusters[ind], cluster_membership, vertex, 
+		vertex_has_these_edges, vertex_neighbors, graph))
 	print("\nmodularity stuff")
-	print(gain_exp)
+	# print("The gain in modularity is {}".format(gain_exp))
+	for gain in all_gains:
+		print(gain)
 
 
 	# TODO
@@ -94,7 +100,17 @@ def nectar(graph, vertex_ID):
 def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_neighbors, original_graph):
 	# TODO: finish!
 	initial_modularity = cluster.modularity(cluster_membership, weights=cluster.es["weight"]) 
-	final_modularity = 0
+	neighbor_in_cluster = []
+	edge_to_add = incident_edges[0]
+	for node in cluster.vs:
+		for neighbor in vertex_neighbors:
+			if (node["name"] == neighbor["name"]):
+					neighbor_in_cluster = neighbor
+	cluster.add_vertex(**vertex.attributes())
+	for edge in incident_edges:
+		if (edge.target == neighbor_in_cluster.index):
+			cluster.add_edge(vertex["name"], neighbor_in_cluster["name"], **edge.attributes())
+	final_modularity = cluster.modularity(cluster_membership, weights=cluster.es["weight"]) 
 	gain = final_modularity - initial_modularity
 	# plot_Kamada_Kawai(cluster)
 	return gain
@@ -151,6 +167,7 @@ optModie = my_graph.community_optimal_modularity(my_graph.es["weight"])
 # TODO
 # Eventually want to do this for all vertices.  
 my_vertex = 0 # Alice vertex
+# plot_Kamada_Kawai(my_graph)
 my_graph = nectar(my_graph, my_vertex)
 
 # ---------------------------------------------------------------------------------------
@@ -175,6 +192,7 @@ my_graph = nectar(my_graph, my_vertex)
 
 
 # plot(my_graph, **visual_style)
+
 
 
 
