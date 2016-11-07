@@ -1,4 +1,5 @@
 from igraph import *
+from functools import reduce
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -131,21 +132,54 @@ def nectar(graph, beta, vertex_ID):
 
 	# 5) Add v to the community maximizing gain
 	# Already done in the compute_gain function from Step 4). 
-	plot_Kamada_Kawai(max_gain_cluster)
-	# plot_Kamada_Kawai(modified_graph)
+	# plot_Kamada_Kawai(max_gain_cluster)
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
 	# (initialized to zero upon start of the larger algorithm).  
 	for Cv_element in vertex_communities:
-		if (Cv_element.vs["name"] != max_gain_cluster.vs["name"]):
+		if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= 0) ):
 			vertex_communities.append(max_gain_cluster)
 	# for cluster in vertex_communities:
 	# 	plot_Kamada_Kawai(cluster)
 	return vertex_communities
 
-def merge(cluster_one, cluster_two, alpha=0.8):
-	return 
+# TODO
+# Needs work on properly merging two subgraphs.  
+# Trying to form the merged subgraphs from the original supergraph, but it's not working when there are no connecting edges.
+def merge(graph, cluster_one, cluster_two):
+	"""
+	A function to merge two communities. 
+	"""
+	cluster_one_vertices = cluster_one.vs
+	cluster_two_vertices = cluster_two.vs
+	print(cluster_one_vertices["name"])
+	print(cluster_two_vertices["name"])
+	combined_cluster = set()
+	for node in cluster_one_vertices:
+		combined_cluster.add(node)
+	for node in cluster_two_vertices:
+		# if (node not in combined_cluster):
+		# 	combined_cluster.add(node)
+		if (node["name"] == "Alice"):
+			print("skip Alice")
+		else:
+			combined_cluster.add(node)
+	print(combined_cluster)
+	if needs_merge(cluster_one, cluster_two):
+		return graph.subgraph(combined_cluster)
+	else:
+		return
+
+def needs_merge(cluster_one, cluster_two, alpha=0.8):
+	"""
+	Returns True if there's sufficient overlap between the two clusters. 
+	"""
+	cluster_one_vertex_set = set(cluster_one.vs)
+	cluster_two_vertex_set = set(cluster_two.vs)
+	if ( len(cluster_one_vertex_set & cluster_two_vertex_set)/( min( len(cluster_one_vertex_set), len(cluster_two_vertex_set) )) >= alpha ):
+		return True
+	return False
 
 def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_neighbors, original_graph):
 	"""
@@ -154,6 +188,8 @@ def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_nei
 	2) add in vertex into the cluster
 	3) recompute modularity for the modified cluster
 	4) return gain = the delta b/w final & initial modularity
+		and
+		return the cluster with the restored vertex and the connecting edge(s)
 	"""
 	initial_modularity = cluster.modularity(cluster_membership, weights=cluster.es["weight"]) 
 	neighbor_in_cluster = []
@@ -174,8 +210,9 @@ def outer_nectar(graph, beta):
 	nodes_in_graph = graph.vs
 	communities_per_node = []
 	for node in nodes_in_graph:
-		communities_per_node.append(nectar(my_graph, beta, node.index))
-	return nodes_in_graph
+		community_set = nectar(my_graph, beta, node.index)
+		communities_per_node.append(community_set)
+	return communities_per_node
 
 # ---------------------------------------------------------------------------------------
 # Creating the graph G<V,E>
@@ -200,6 +237,50 @@ for edge in my_graph.es:
 	target_vertex = my_graph.vs[edge.target]["age"]
 	weights.append( abs(source_vertex - target_vertex) )
 my_graph.es["weight"] = weights
+
+# ---------------------------------------------------------------------------------------
+# Running the entire NECTAR algorithm here!  
+
+original_graph = my_graph.copy()
+
+beta = 1
+# my_vertex_id = 4
+my_vertex_id = 0 # Alice vertex
+my_vertex = my_graph.vs[my_vertex_id]
+# plot_Kamada_Kawai(my_graph)
+# nectar(my_graph, beta, my_vertex_id)
+communities_per_node_from_nectar = outer_nectar(my_graph, beta)
+# for item in communities_per_node_from_nectar:
+# 	print(item)
+
+# TODO:  See merge section
+# Testing merge stuff
+first_comm_list = communities_per_node_from_nectar[0]
+print(needs_merge(first_comm_list[0], first_comm_list[1]))
+merged_graph = merge(original_graph, first_comm_list[0], first_comm_list[1])
+
+# ---------------------------------------------------------------------------------------
+# Plotting stuff
+
+
+
+# plot_Kamada_Kawai(my_graph)
+
+# # Kamada-Kawai plotting
+# layout = my_graph.layout("kk")
+# color_dict = {"m": "blue", "f": "pink"}
+# visual_style = {}
+# visual_style["vertex_size"] = 20
+# visual_style["vertex_color"] = [color_dict[gender] for gender in my_graph.vs["gender"]]
+# visual_style["vertex_label"] = my_graph.vs["name"]
+# visual_style["edge_label"] = my_graph.es["weight"]
+# #visual_style["edge_width"] = my_graph.es["weight"]
+# visual_style["layout"] = layout
+# visual_style["bbox"] = (600, 600)
+# visual_style["margin"] = 20
+
+
+# plot(my_graph, **visual_style)
 
 # ---------------------------------------------------------------------------------------
 # Some community detection tools.  Just messing around here. 
@@ -228,47 +309,6 @@ my_graph.es["weight"] = weights
 
 
 # ---------------------------------------------------------------------------------------
-
-# TODO
-# Eventually want to do this for all vertices.  
-
-beta = 1
-# my_vertex_id = 4
-my_vertex_id = 0 # Alice vertex
-my_vertex = my_graph.vs[my_vertex_id]
-plot_Kamada_Kawai(my_graph)
-# nectar(my_graph, beta, my_vertex_id)
-outer_nectar(my_graph, beta)
-
-# tmp testing code
-# louvian_output = my_graph.community_multilevel(weights=my_graph.es["weight"]) # returns a list of VertexClusters
-# print(louvian_output)
-
-
-# ---------------------------------------------------------------------------------------
-# Plotting stuff
-
-
-
-# plot_Kamada_Kawai(my_graph)
-
-# # Kamada-Kawai plotting
-# layout = my_graph.layout("kk")
-# color_dict = {"m": "blue", "f": "pink"}
-# visual_style = {}
-# visual_style["vertex_size"] = 20
-# visual_style["vertex_color"] = [color_dict[gender] for gender in my_graph.vs["gender"]]
-# visual_style["vertex_label"] = my_graph.vs["name"]
-# visual_style["edge_label"] = my_graph.es["weight"]
-# #visual_style["edge_width"] = my_graph.es["weight"]
-# visual_style["layout"] = layout
-# visual_style["bbox"] = (600, 600)
-# visual_style["margin"] = 20
-
-
-# plot(my_graph, **visual_style)
-
-
 
 
 
