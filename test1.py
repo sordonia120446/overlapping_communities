@@ -138,7 +138,7 @@ def nectar(graph, beta, vertex_ID):
 	# one found in Step 1.  If so, increment the stable node counter by one 
 	# (initialized to zero upon start of the larger algorithm).  
 	for Cv_element in vertex_communities:
-		if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= 0) ):
+		if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= (1/beta)) ):
 			vertex_communities.append(max_gain_cluster)
 	# for cluster in vertex_communities:
 	# 	plot_Kamada_Kawai(cluster)
@@ -249,15 +249,17 @@ my_vertex_id = 0 # Alice vertex
 my_vertex = my_graph.vs[my_vertex_id]
 # plot_Kamada_Kawai(my_graph)
 # nectar(my_graph, beta, my_vertex_id)
-communities_per_node_from_nectar = outer_nectar(my_graph, beta)
+# communities_per_node_from_nectar = outer_nectar(my_graph, beta)
 # for item in communities_per_node_from_nectar:
 # 	print(item)
+print(VertexCover(my_graph))
+
 
 # TODO:  See merge section
 # Testing merge stuff
-first_comm_list = communities_per_node_from_nectar[0]
-print(needs_merge(first_comm_list[0], first_comm_list[1]))
-merged_graph = merge(original_graph, first_comm_list[0], first_comm_list[1])
+# first_comm_list = communities_per_node_from_nectar[0]
+# print(needs_merge(first_comm_list[0], first_comm_list[1]))
+# merged_graph = merge(original_graph, first_comm_list[0], first_comm_list[1])
 
 # ---------------------------------------------------------------------------------------
 # Plotting stuff
