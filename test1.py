@@ -37,6 +37,9 @@ def determine_community_set(graph, vertex):
 				vertex_communities.append(community)
 	return vertex_communities
 
+# ---------------------------------------------------------------------------------------
+# Here's the magic core!
+
 def nectar(graph, beta, vertex_ID):
 	"""
 	Here's where the NECTAR magic happens.  See proposal.docx for details.  
@@ -63,6 +66,9 @@ def nectar(graph, beta, vertex_ID):
 	# 1) Determine Cv, the set of communities the vertex belongs to. 
 	vertex_communities = determine_community_set(graph, vertex)
 	initial_cardinality_of_vertex_communities = len(vertex_communities)
+	print("\nThis is the initial community set that vertex {} belongs to".format(vertex["name"]))
+	for community in vertex_communities:
+		print(community.vs["name"])
 
 
 	# 2) Remove vertex & its incident edges
@@ -112,34 +118,37 @@ def nectar(graph, beta, vertex_ID):
 			vertex_has_these_edges, vertex_neighbors, graph)
 		all_gains.append(gain)
 		all_clusters_gained.append(cluster)
-	print("\nThese are the gains in modularity")
-	max_gain = all_gains[0]
-	max_gain_index = 0
-	for ind, gain in enumerate(all_gains):
-		print(gain)
-		if (gain > max_gain):
-			max_gain = gain
-			max_gain_index = ind
-	# TODO: This below line is probably not outputting the correct index...
-	# max_gain = all_gains.index( max(all_gains) )
-	print("The max gain and its index are")
-	print(max_gain)
-	print(max_gain_index)
-	# max_gain_cluster = modified_clusters[all_gains.index(max(all_gains))]
-	max_gain_cluster = all_clusters_gained[max_gain_index] # fix this
 
 	# TODO: implement a loop that adds in beta-number of possible community clusters
-
 	# 5) Add v to the community maximizing gain
-	# Already done in the compute_gain function from Step 4). 
+	# The vertex is actually added into each cluster in the compute_gain function from Step 4). 
+	# Looping through all_gains to add each qualifying cluster into vertex_communities. 
+	print("\nThese are the gains in modularity")
+	# max_gain = all_gains[0]
+	# max_gain_index = 0
+	for ind, gain in enumerate(all_gains):
+		print(gain)
+		# Cv_element = vertex_communities[ind]
+		if ( gain >= (1/beta) ):
+			vertex_communities.append(all_clusters_gained[ind])
+		# if (gain > max_gain):
+		# 	max_gain = gain
+		# 	max_gain_index = ind
+	# # TODO: This below line is probably not outputting the correct index...
+	# # max_gain = all_gains.index( max(all_gains) )
+	# print("The max gain and its index are")
+	# print(max_gain)
+	# print(max_gain_index)
+	# max_gain_cluster = modified_clusters[all_gains.index(max(all_gains))]
+	# max_gain_cluster = all_clusters_gained[max_gain_index] # fix this?
 	# plot_Kamada_Kawai(max_gain_cluster)
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
 	# (initialized to zero upon start of the larger algorithm).  
-	for Cv_element in vertex_communities:
-		if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= (1/beta)) ):
-			vertex_communities.append(max_gain_cluster)
+	# for Cv_element in vertex_communities:
+	# 	if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= (1/beta)) ):
+	# 		vertex_communities.append(max_gain_cluster)
 	# for cluster in vertex_communities:
 	# 	plot_Kamada_Kawai(cluster)
 	return vertex_communities
@@ -242,17 +251,27 @@ my_graph.es["weight"] = weights
 # Running the entire NECTAR algorithm here!  
 
 original_graph = my_graph.copy()
-
 beta = 1
+
 # my_vertex_id = 4
-my_vertex_id = 0 # Alice vertex
-my_vertex = my_graph.vs[my_vertex_id]
 # plot_Kamada_Kawai(my_graph)
-# nectar(my_graph, beta, my_vertex_id)
-# communities_per_node_from_nectar = outer_nectar(my_graph, beta)
-# for item in communities_per_node_from_nectar:
-# 	print(item)
-print(VertexCover(my_graph))
+
+# Testing the entire outer_nectar algorithm.  
+communities_per_node_from_nectar = outer_nectar(my_graph, beta)
+print("\nHere's what we get from the nectar algorithm")
+for item in communities_per_node_from_nectar:
+	print(item)
+	for cluster in item:
+		print(cluster.vs["name"])
+
+# For testing individual node Alice
+# my_vertex_id = 0 # Alice vertex
+# my_vertex = my_graph.vs[my_vertex_id]
+# alice_communities =  nectar(my_graph, beta, my_vertex_id)
+
+# for cluster in alice_communities:
+# 	print(cluster)
+# 	plot_Kamada_Kawai(cluster)
 
 
 # TODO:  See merge section
