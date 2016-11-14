@@ -25,6 +25,7 @@ def plot_Kamada_Kawai(graph_to_plot):
 def determine_community_set(graph, vertex):
 	"""
 	Returns a list of graphs in which the input vertex belongs to.  
+	Computes the communities of the vertex with the Louvain approach.  
 	"""
 	vertex_communities = []
 	communities = graph.community_multilevel(weights=graph.es["weight"])
@@ -72,8 +73,6 @@ def nectar(graph, beta, vertex_ID):
 
 	# 2) Remove vertex & its incident edges
 	modified_graph.delete_vertices(vertex_ID)
-	# vertex_neighbors_names = modified_graph.vs[vertex_neighbors_ID]
-
 	print("Info on vertex removed, its neighbors, and the incident edges:") 
 	print("This is our vertex")
 	print(vertex)
@@ -133,12 +132,12 @@ def nectar(graph, beta, vertex_ID):
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
 	# (initialized to zero upon start of the larger algorithm).  
-	# for Cv_element in vertex_communities:
-	# 	if ( (Cv_element.vs["name"] != max_gain_cluster.vs["name"]) and (max_gain >= (1/beta)) ):
-	# 		vertex_communities.append(max_gain_cluster)
+	reset_stable_node_counter = False
+	if ( len(vertex_communities) > initial_cardinality_of_vertex_communities ):
+		reset_stable_node_counter = True
 	# for cluster in vertex_communities:
 	# 	plot_Kamada_Kawai(cluster)
-	return vertex_communities
+	return vertex_communities, reset_stable_node_counter
 
 # TODO
 # Needs work on properly merging two subgraphs.  
@@ -203,11 +202,20 @@ def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_nei
 	return (gain, cluster)
 
 def outer_nectar(graph, beta):
-	nodes_in_graph = graph.vs
-	communities_per_node = []
-	for node in nodes_in_graph:
-		community_set = nectar(graph, beta, node.index)
-		communities_per_node.append(community_set)
+	max_iter = 20 # max times the outer loop is repeated
+	vertex_count = len(graph.vs)
+	while (max_iter > 0 or stable_nodes < vertex_count ):
+		stable_nodes = 0
+		nodes_in_graph = graph.vs
+		communities_per_node = []
+		for node in nodes_in_graph:
+			(community_set, reset_stable_node_counter) = nectar(graph, beta, node.index)
+			communities_per_node.append(community_set)
+			if reset_stable_node_counter:
+				stable_nodes = 0
+			else:
+				stable_nodes += 1
+		max_iter -= 1
 	return communities_per_node
 
 # # ---------------------------------------------------------------------------------------
