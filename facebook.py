@@ -1,5 +1,6 @@
 from igraph import *
-from nectar import *
+# from nectar import *
+from heuristic_nectar import *
 import random
 import os
 """

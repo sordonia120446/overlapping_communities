@@ -1,5 +1,6 @@
 from igraph import *
-from nectar import *
+# from nectar import *
+from heuristic_nectar import *
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -35,7 +36,7 @@ original_graph = my_graph.copy()
 beta = 1
 
 # my_vertex_id = 4
-# plot_Kamada_Kawai(my_graph)
+plot_Kamada_Kawai(my_graph)
 
 # Testing the entire outer_nectar algorithm.  
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)

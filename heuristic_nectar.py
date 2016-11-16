@@ -37,33 +37,51 @@ def determine_community_set(graph, vertex):
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
-# Heuristic:  Triangle detection
+# Heuristic:  Triangle detection and "removal"
 
-def is_part_of_triangle(vertex, vertex_neighbors):
+# TODO add in check to see if neighbors are connected via edge
+def is_in_dangling_triangle(vertex, vertex_neighbors):
 	"""
-	Checks if vertex is in a triangle.  Assumes a connected graph (at least 1 edge per node).
+	Checks if the vertex is part of a dangling triangle.  A dangling triangle has one node with degree >=3, 
+	and two more vertices with degree = 2 and connected to each other. 
+
+	Assumes a connected graph (at least 1 edge per node).
 	Returns True if so; False otherwise. 
 	"""
 	two_degree_node_cntr = 0
-	if (vertex.degree() == 2):
-		two_degree_node_cntr += 1
 	for neighbor in vertex_neighbors:
 		if (neighbor.degree() == 2):
 			two_degree_node_cntr += 1
 	if (two_degree_node_cntr == 2):
 		return True
-	else:
-		return False
+	return False
+
+# TODO add in check to see if neighbors are connected via edge
+def is_in_envelope_triangle(vertex, vertex_neighbors):
+	"""
+	Checks if the vertex is part of an envelope triangle.  
+	"""
+	for neighbor in vertex_neighbors:
+		if (neighbor.degree() == 2):
+			return False
+	if (vertex.degree() == 2):
+		return True
+	return False
 
 def triangle_to_node(vertex, vertex_neighbors):
 	"""
 	Creates a "super-node" consisting of the 3 vertices of the triangle. 
+	NB:  only works for dangling triangle case. 
 	1) Rename the vertex with >=3 degree to include the names of the other two vertices with regex '/'
-	2) 
+	2) Remove other two vertices from graph as well as their edges. 
 	"""
 	return 3.14
 
 def add_triangle_vertices_to_vertex_cluster(vertex, vertex_neighbors):
+	"""
+	NB:  only works for dangling triangle case. 
+	1) Add 
+	"""
 	return 3.14
 
 # ---------------------------------------------------------------------------------------
@@ -91,6 +109,8 @@ def nectar(graph, beta, vertex_ID):
 		vertex_has_these_edges.append( graph.es[graph.get_eid(vertex, graph.vs[id])] )
 		if (id > vertex_ID):
 			vertex_neighbors_ID[index] -=1 
+
+	# 0.5) Determine if vertex is triangle or not
 
 	# 1) Determine Cv, the set of communities the vertex belongs to. 
 	vertex_communities = determine_community_set(graph, vertex)
