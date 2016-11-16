@@ -32,14 +32,22 @@ for edge in my_graph.es:
 	weights.append( abs(source_vertex - target_vertex) )
 my_graph.es["weight"] = weights
 
+# CLose file
+file.close()
+
 # ---------------------------------------------------------------------------------------
 # Running the entire NECTAR algorithm here!  
 
-# original_graph = my_graph.copy()
-# beta = 1
-
-# # my_vertex_id = 4
+my_vertex_id = 1337
+original_graph = my_graph.copy()
+beta = 1
 # plot_Kamada_Kawai(my_graph)
+output = nectar(my_graph, beta, my_vertex_id)
+community_list = output[0]
+# for community in community_list:
+# 	for node in community.vs:
+# 		print(node["name"])
+# 	plot_Kamada_Kawai(community)
 
 # # Testing the entire outer_nectar algorithm.  
 # communities_per_node_from_nectar = outer_nectar(my_graph, beta)

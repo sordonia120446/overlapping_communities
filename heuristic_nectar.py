@@ -37,6 +37,36 @@ def determine_community_set(graph, vertex):
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
+# Heuristic:  Triangle detection
+
+def is_part_of_triangle(vertex, vertex_neighbors):
+	"""
+	Checks if vertex is in a triangle.  Assumes a connected graph (at least 1 edge per node).
+	Returns True if so; False otherwise. 
+	"""
+	two_degree_node_cntr = 0
+	if (vertex.degree() == 2):
+		two_degree_node_cntr += 1
+	for neighbor in vertex_neighbors:
+		if (neighbor.degree() == 2):
+			two_degree_node_cntr += 1
+	if (two_degree_node_cntr == 2):
+		return True
+	else:
+		return False
+
+def triangle_to_node(vertex, vertex_neighbors):
+	"""
+	Creates a "super-node" consisting of the 3 vertices of the triangle. 
+	1) Rename the vertex with >=3 degree to include the names of the other two vertices with regex '/'
+	2) 
+	"""
+	return 3.14
+
+def add_triangle_vertices_to_vertex_cluster(vertex, vertex_neighbors):
+	return 3.14
+
+# ---------------------------------------------------------------------------------------
 # Here's the magic core nectar algorithm!
 
 def nectar(graph, beta, vertex_ID):

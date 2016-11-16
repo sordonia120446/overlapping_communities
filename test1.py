@@ -40,9 +40,9 @@ beta = 1
 # Testing the entire outer_nectar algorithm.  
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)
 print("\nHere's what we get from the nectar algorithm")
-for item in communities_per_node_from_nectar:
-	print(item)
-	for cluster in item:
+for community_list in communities_per_node_from_nectar:
+	# print(community_list)
+	for cluster in community_list:
 		print(cluster.vs["name"])
 
 # For testing individual node Alice
