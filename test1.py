@@ -1,19 +1,11 @@
 from igraph import *
-# from nectar import *
-from heuristic_nectar import *
+from nectar import *
+# from heuristic_nectar import *
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
 
 # ---------------------------------------------------------------------------------------
-# Creating the graph G<V,E>
-
-# Generate a famous graph
-# my_graph = Famous("Tutte")
-# num_of_vertices = 50
-# fw_prob = 0.8
-# my_graph = Forest_Fire(n, fw_prob, bw_factor=0.1, ambs=2, directed=False)
-
 # Create graph of 7 vertices and 9 edges.
 my_graph = Graph([(0,1), (0,2), (2,3), (3,4), (4,2), (2,5), (5,0), (6,3), (5,6)])
 my_graph.vs["name"] = ["Alice", "Bob", "Claire", "Dennis", "Esther", "Frank", "George"]
@@ -36,15 +28,21 @@ original_graph = my_graph.copy()
 beta = 1
 
 # my_vertex_id = 4
-plot_Kamada_Kawai(my_graph)
+# plot_Kamada_Kawai(my_graph)
 
 # Testing the entire outer_nectar algorithm.  
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)
 print("\nHere's what we get from the nectar algorithm")
+cntr = 0
 for community_list in communities_per_node_from_nectar:
 	# print(community_list)
+	vertex = my_graph.vs[cntr]
+	print( "\nFor vertex {} , it is part of the following communities".format(vertex["name"]) )
 	for cluster in community_list:
-		print(cluster.vs["name"])
+		cluster_members = cluster.vs["name"]
+		# print(   "It is part of this community".format(cluster_members)   )
+		print(cluster_members)
+	cntr += 1
 
 # For testing individual node Alice
 # my_vertex_id = 0 # Alice vertex

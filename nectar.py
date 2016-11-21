@@ -141,7 +141,7 @@ def nectar(graph, beta, vertex_ID):
 # Trying to form the merged subgraphs from the original supergraph, but it's not working when there are no connecting edges.
 def merge(graph, cluster_one, cluster_two):
 	"""
-	A function to merge two communities. 
+	A function to merge two communities. Still a WIP.  
 	"""
 	cluster_one_vertices = cluster_one.vs
 	cluster_two_vertices = cluster_two.vs
