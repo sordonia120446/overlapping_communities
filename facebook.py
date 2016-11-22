@@ -1,6 +1,6 @@
 from igraph import *
-from nectar import *
-# from heuristic_nectar import *
+# from nectar import *
+from custom_nectar import *
 import random
 import os
 """
@@ -26,27 +26,27 @@ for vertex in my_graph.vs:
 	vertex["gender"] = gender_types[round(random.uniform(0,1))]
 	vertex["is_formal"] = is_formal_types[round(random.uniform(0,1))]
 
-# Close file
+# Close input file
 file.close()
 
 # ---------------------------------------------------------------------------------------
 # Running the entire NECTAR algorithm here!  
 
-# my_vertex_id = 1337
+# Initial input parameters
 # original_graph = my_graph.copy()
-# beta = 1
+beta = 10
 # plot_Kamada_Kawai(my_graph)
-# output = nectar(my_graph, beta, my_vertex_id)
-# community_list = output[0]
-# vertex = my_graph.vs[my_vertex_id]
-# print( "\nFor vertex {} , it is part of the following communities".format(vertex["name"]) )
-# for community in community_list:
-# 	cluster_members = community.vs["name"]
-# 	print(cluster_members)
-# 	plot_Kamada_Kawai(community)
 
-for edge in my_graph.es:
-	print(edge["weight"])
+# Testing one vertex with nectar
+my_vertex_id = 0
+output = nectar(my_graph, beta, my_vertex_id)
+community_list = output[0]
+vertex = my_graph.vs[my_vertex_id]
+print( "\nFor vertex {} , it is part of the following communities".format(vertex["name"]) )
+for community in community_list:
+	cluster_members = community.vs["name"]
+	print(cluster_members)
+	# plot_Kamada_Kawai(community)
 
 # # Testing the entire outer_nectar algorithm.  
 # communities_per_node_from_nectar = outer_nectar(my_graph, beta)

@@ -1,6 +1,6 @@
 from igraph import *
-from nectar import *
-# from heuristic_nectar import *
+# from nectar import *
+from custom_nectar import *
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -27,8 +27,8 @@ my_graph.es["weight"] = weights
 original_graph = my_graph.copy()
 beta = 1
 
-# my_vertex_id = 4
-# plot_Kamada_Kawai(my_graph)
+# # my_vertex_id = 4
+# # plot_Kamada_Kawai(my_graph)
 
 # Testing the entire outer_nectar algorithm.  
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)
@@ -44,14 +44,17 @@ for community_list in communities_per_node_from_nectar:
 		print(cluster_members)
 	cntr += 1
 
+
+
 # For testing individual node Alice
 # my_vertex_id = 0 # Alice vertex
 # my_vertex = my_graph.vs[my_vertex_id]
-# alice_communities =  nectar(my_graph, beta, my_vertex_id)
+# # alice_communities =  nectar(my_graph, beta, my_vertex_id)
+# alice_communities = determine_community_set(my_graph, my_vertex)
 
 # for cluster in alice_communities:
 # 	print(cluster)
-# 	plot_Kamada_Kawai(cluster)
+# 	# plot_Kamada_Kawai(cluster)
 
 
 
