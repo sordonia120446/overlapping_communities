@@ -1,0 +1,3 @@
+The third dataset was also used in the Why Anchorage is not (that) important: Binary ties and Sample selection-blog post. The data is downloaded from Openflights.org. Unlike the BTS data, this dataset contains ties between two non-US-based airports. As such, it gives much more of a complete picture and avoids the sample selection. The weights in this network refer to the number of routes between two airports. Airport attributes are available.
+Weighted static one-mode network: tnet-format; UCINET-format
+Opsahl, T., 2011. Why Anchorage is not (that) important: Binary ties and Sample selection. Available at http://wp.me/poFcY-Vw.

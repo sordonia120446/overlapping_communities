@@ -13,20 +13,12 @@ Create social network graph based on Stanford's Facebook data.
 # Creating the graph G<V,E>
 
 # Reading in the input file 
-# path = os.path.abspath("references/facebook/facebook_combined.txt")
-path = os.path.abspath("references/facebook/weighted_graph.txt")
+path = os.path.abspath("references/power_grid/unweighted_data.txt")
 
 file = open(path, 'r')
 my_graph = Graph.Read_Ncol(file, names=True, weights='if_present', directed = False)
 my_graph = my_graph.simplify(multiple=True, loops=True, combine_edges=max) # remove duplicate edges
-
-# Coming up with random ages, gender, and formal/informal relationships
-gender_types = ["m", "f"]
-is_formal_types = [True, False]
-for vertex in my_graph.vs:
-	vertex["age"] = round(random.uniform(1, 65))
-	vertex["gender"] = gender_types[round(random.uniform(0,1))]
-	vertex["is_formal"] = is_formal_types[round(random.uniform(0,1))]
+# my_graph = Graph.Read_Ncol(file, weights='if_present', directed = False)
 
 # Close input file
 file.close()
@@ -35,11 +27,11 @@ file.close()
 # Running the entire NECTAR algorithm here!  
 
 # Initial input parameters
-# original_graph = my_graph.copy()
+original_graph = my_graph.copy()
 beta = 10000000
-# plot_Kamada_Kawai(my_graph)
+# plot(my_graph)
 
-#Testing one vertex with nectar
+# Testing one vertex with nectar
 my_vertex_id = 0
 output = nectar(my_graph, beta, my_vertex_id)
 community_list = output[0]
@@ -49,7 +41,6 @@ for community in community_list:
 	cluster_members = community.vs["name"]
 	print('\n')
 	print(cluster_members)
-	# plot_Kamada_Kawai(community)
 
 # # Testing the entire outer_nectar algorithm.  
 # communities_per_node_from_nectar = outer_nectar(my_graph, beta)
@@ -66,6 +57,9 @@ for community in community_list:
 # 	cntr += 1
 
 # print("\nDone")
+
+# ---------------------------------------------------------------------------------------
+# Troubleshooting community detection
 
 
 

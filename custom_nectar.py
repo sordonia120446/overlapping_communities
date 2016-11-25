@@ -28,7 +28,8 @@ def determine_community_set(graph, vertex):
 	"""
 	vertex_communities = []
 	# calculate dendrogram
-	my_dendrogram = graph.community_edge_betweenness(directed=False, weights=graph.es["weight"])
+	# my_dendrogram = graph.community_edge_betweenness(directed=False, weights=graph.es["weight"])
+	my_dendrogram = graph.community_fastgreedy(weights=graph.es["weight"])
 	# convert it into a flat clustering
 	communities = my_dendrogram.as_clustering()
 	my_membership = communities.membership
@@ -100,7 +101,8 @@ def nectar(graph, beta, vertex_ID):
 	# 3) Compute Sv, the set of communities each containing at least one instance of v's neighbors
 	# Sv --> vertex_neighbors_clusters
 
-	my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
+	# my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
+	my_dendrogram = modified_graph.community_fastgreedy(weights=modified_graph.es["weight"]) # returns a dendogram
 	# convert dendogram into a flat clustering
 	communities = my_dendrogram.as_clustering()
 	my_membership = communities.membership

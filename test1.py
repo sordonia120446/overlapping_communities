@@ -25,7 +25,7 @@ my_graph.es["weight"] = weights
 # Running the entire NECTAR algorithm here!  
 
 original_graph = my_graph.copy()
-beta = 1
+beta = 1/10
 
 # # my_vertex_id = 4
 # # plot_Kamada_Kawai(my_graph)
