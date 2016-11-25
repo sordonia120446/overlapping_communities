@@ -1,6 +1,6 @@
 from igraph import *
-# from nectar import *
-from custom_nectar import *
+from nectar import *
+# from custom_nectar import *
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """

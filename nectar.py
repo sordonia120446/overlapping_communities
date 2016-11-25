@@ -27,13 +27,19 @@ def determine_community_set(graph, vertex):
 	Computes the communities of the vertex with the Louvain approach.  
 	"""
 	vertex_communities = []
-	communities = graph.community_multilevel(weights=graph.es["weight"])
-	communities = communities.subgraphs()
-	for community in communities:
-		# print(community.vs)
-		for node in community.vs:
-			if (node["name"] == vertex["name"]):
-				vertex_communities.append(community)
+	# communities = graph.community_multilevel(weights=graph.es["weight"])
+
+	clique_list = graph.maximal_cliques()
+	for clique in clique_list:
+		if (vertex.index in clique):
+			vertices = list(clique)
+			vertex_communities.append(graph.subgraph(vertices))
+
+	# for community in communities:
+	# 	# print(community.vs)
+	# 	for node in community.vs:
+	# 		if (node["name"] == vertex["name"]):
+	# 			vertex_communities.append(community)
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
@@ -46,6 +52,7 @@ def nectar(graph, beta, vertex_ID):
 	# 0) Initialize stuff
 	modified_graph = graph.copy() 
 	vertex = graph.vs[vertex_ID]
+	print("Running nectar on {}".format(vertex))
 	vertex_has_these_edges = []
 	vertex_neighbors = []
 	vertex_neighbors_ID = graph.neighbors(vertex, mode="out")
@@ -126,7 +133,6 @@ def nectar(graph, beta, vertex_ID):
 		if ( gain >= (1/beta) ):
 			# print("This community gives sufficient gain >= {}".format(1/beta))
 			vertex_communities.append(all_clusters_gained[ind])
-			# plot_Kamada_Kawai(all_clusters_gained[ind])
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
@@ -198,10 +204,13 @@ def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_nei
 	gain = final_modularity - initial_modularity
 	return (gain, cluster)
 
+# TODO:  determine what to set max_iter
 def outer_nectar(graph, beta):
 	max_iter = 20 # max times the outer loop is repeated
+	max_iter = 1 # max times the outer loop is repeated
 	vertex_count = len(graph.vs)
 	while (max_iter > 0 or stable_nodes < vertex_count ):
+		print("Iterating outer nectar portion")
 		stable_nodes = 0
 		nodes_in_graph = graph.vs
 		communities_per_node = []
@@ -266,7 +275,6 @@ def outer_nectar(graph, beta):
 # # 	plot_Kamada_Kawai(cluster)
 
 
-# # TODO:  See merge section
 # # Testing merge stuff
 # # first_comm_list = communities_per_node_from_nectar[0]
 # # print(needs_merge(first_comm_list[0], first_comm_list[1]))

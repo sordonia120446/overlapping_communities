@@ -1,6 +1,6 @@
 from igraph import *
-# from nectar import *
-from custom_nectar import *
+from nectar import *
+# from custom_nectar import *
 import random
 import os
 """
