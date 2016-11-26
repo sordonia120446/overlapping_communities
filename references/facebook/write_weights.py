@@ -17,31 +17,43 @@ is_formal_types = [True, False]
 for vertex in my_graph.vs:
 	vertex["age"] = round(random.uniform(1, 65))
 	vertex["gender"] = gender_types[round(random.uniform(0,1))]
-	vertex["is_formal"] = is_formal_types[round(random.uniform(0,1))]
 
-# Adding weights to these edges.  Weights are determined by age deltas b/w nodes. 
+# Adding weights to these edges.  Weights are determined by age deltas b/w nodes. Also adding in formal/informal relationships. 
 weights = list();
 for edge in my_graph.es:
 	source_vertex = my_graph.vs[edge.source]["age"]
 	target_vertex = my_graph.vs[edge.target]["age"]
+	edge["is_formal"] = is_formal_types[round(random.uniform(0,1))]
 	weights.append( abs(source_vertex - target_vertex) + age_variance)
 my_graph.es["weight"] = weights
 
+# ---------------------------------------------------------------------------------------
+# Writing data to txt files
+
 # Writing to file weighted_graph.txt
-output_file = open("weighted_graph.txt", 'w')
+output_file = open("weighted_graph.txt", "w")
+edge_attr_file = open("edge_attr_file.txt", "w")
 for edge in my_graph.es:
 	source_vertex = str(my_graph.vs[edge.source]["name"])
 	target_vertex = str(my_graph.vs[edge.target]["name"])
 	weight = str(edge["weight"])
-	source_vertex_age = str( my_graph.vs[edge.source]["age"] )
-	target_vertex_age = str( my_graph.vs[edge.target]["age"] )
+	is_formal = str(edge["is_formal"])
 	output_file.write(source_vertex + ' ' + target_vertex + ' ' + weight + '\n')
+	edge_attr_file.write(is_formal + '\n')
 	# output_file.write(source_vertex + ' ' + target_vertex + ' ' + weight + ' ' + source_vertex_age + ' ' + target_vertex_age + '\n')
-	# output_file.write( "{} {} {}".format( str(edge.source["name"]), str(edge.target["name"]), str(edge["weight"]) ) )
 
-# Close file
+# Writing supplementary vertex attributes
+vertex_attr_file = open("vertex_attr_file.txt", "w")
+for vertex in my_graph.vs:
+	age = str(vertex["age"])
+	gender = str(vertex["gender"])
+	vertex_attr_file.write(age + ' ' + gender + '\n')
+
+# Close files
 file.close()
 output_file.close()
+edge_attr_file.close()
+vertex_attr_file.close()
 
 
 
