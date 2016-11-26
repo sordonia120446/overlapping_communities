@@ -1,6 +1,7 @@
 from igraph import *
-from nectar import *
-# from custom_nectar import *
+import time
+# from nectar import *
+from custom_nectar import *
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -31,6 +32,7 @@ beta = 1/10
 # # plot_Kamada_Kawai(my_graph)
 
 # Testing the entire outer_nectar algorithm.  
+start_time = time.time()
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)
 print("\nHere's what we get from the nectar algorithm")
 cntr = 0
@@ -44,6 +46,10 @@ for community_list in communities_per_node_from_nectar:
 		print(cluster_members)
 	cntr += 1
 
+end_time = time.time()
+time_delta = end_time - start_time
+print("\nDone")
+print("The time required to run is {} seconds".format(time_delta))
 
 
 # For testing individual node Alice

@@ -29,24 +29,30 @@ def determine_community_set(graph, vertex):
 	vertex_communities = []
 	# calculate dendrogram
 	# my_dendrogram = graph.community_edge_betweenness(directed=False, weights=graph.es["weight"])
-	my_dendrogram = graph.community_fastgreedy(weights=graph.es["weight"])
-	# convert it into a flat clustering
-	communities = my_dendrogram.as_clustering()
-	my_membership = communities.membership
-	modie = graph.modularity(my_membership)
+	# my_dendrogram = graph.community_fastgreedy(weights=graph.es["weight"])
+	# # convert it into a flat clustering
+	# communities = my_dendrogram.as_clustering()
+	# my_membership = communities.membership
+	# modie = graph.modularity(my_membership)
 	# print("The modularity for the graph is {}".format(modie))
 	# print(my_membership)
 
+	clique_list = graph.maximal_cliques()
+	for clique in clique_list:
+		if (vertex.index in clique):
+			vertices = list(clique)
+			vertex_communities.append(graph.subgraph(vertices))
+
 	# Convert membership vector into VertexCluster object --> match output of community_multilevel function (Louvian method)
-	communities = VertexClustering(graph, membership=my_membership)
+	# communities = VertexClustering(graph, membership=my_membership)
 	# print(communities)
 
-	communities = communities.subgraphs()
-	for community in communities:
-		# print(community.vs)
-		for node in community.vs:
-			if (node["name"] == vertex["name"]):
-				vertex_communities.append(community)
+	# communities = communities.subgraphs()
+	# for community in communities:
+	# 	# print(community.vs)
+	# 	for node in community.vs:
+	# 		if (node["name"] == vertex["name"]):
+	# 			vertex_communities.append(community)
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
@@ -59,6 +65,7 @@ def nectar(graph, beta, vertex_ID):
 	# 0) Initialize stuff
 	modified_graph = graph.copy() 
 	vertex = graph.vs[vertex_ID]
+	print("Running nectar on {}".format(vertex))
 	vertex_has_these_edges = []
 	vertex_neighbors = []
 	vertex_neighbors_ID = graph.neighbors(vertex, mode="out")
@@ -101,8 +108,8 @@ def nectar(graph, beta, vertex_ID):
 	# 3) Compute Sv, the set of communities each containing at least one instance of v's neighbors
 	# Sv --> vertex_neighbors_clusters
 
-	# my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
-	my_dendrogram = modified_graph.community_fastgreedy(weights=modified_graph.es["weight"]) # returns a dendogram
+	my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
+	# my_dendrogram = modified_graph.community_fastgreedy(weights=modified_graph.es["weight"]) # returns a dendogram
 	# convert dendogram into a flat clustering
 	communities = my_dendrogram.as_clustering()
 	my_membership = communities.membership
@@ -226,6 +233,7 @@ def compute_gain(cluster, cluster_membership, vertex, incident_edges, vertex_nei
 
 def outer_nectar(graph, beta):
 	max_iter = 20 # max times the outer loop is repeated
+	max_iter = 1 # max times the outer loop is repeated
 	vertex_count = len(graph.vs)
 	while (max_iter > 0 or stable_nodes < vertex_count ):
 		stable_nodes = 0

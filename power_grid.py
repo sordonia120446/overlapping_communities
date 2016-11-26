@@ -1,8 +1,9 @@
 from igraph import *
-from nectar import *
-# from custom_nectar import *
+# from nectar import *
+from custom_nectar import *
 import random
 import os
+import time 
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 
@@ -43,6 +44,7 @@ beta = 10000000
 # 	print(cluster_members)
 
 # Testing the entire outer_nectar algorithm.  
+start_time = time.time()
 communities_per_node_from_nectar = outer_nectar(my_graph, beta)
 print("\nHere's what we get from the nectar algorithm")
 cntr = 0
@@ -56,7 +58,10 @@ for community_list in communities_per_node_from_nectar:
 		print(cluster_members)
 	cntr += 1
 
+end_time = time.time()
+time_delta = end_time - start_time
 print("\nDone")
+print("The time required to run is {} seconds".format(time_delta))
 
 # ---------------------------------------------------------------------------------------
 # Troubleshooting community detection of vertex v

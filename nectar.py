@@ -211,7 +211,7 @@ def outer_nectar(graph, beta):
 	vertex_count = len(graph.vs)
 	while (max_iter > 0 or stable_nodes < vertex_count ):
 		print("Iterating outer nectar portion")
-		stable_nodes = 0
+		stable_nodes = 1
 		nodes_in_graph = graph.vs
 		communities_per_node = []
 		for node in nodes_in_graph:

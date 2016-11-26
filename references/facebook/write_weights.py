@@ -42,3 +42,22 @@ for edge in my_graph.es:
 # Close file
 file.close()
 output_file.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
