@@ -1,5 +1,6 @@
 from igraph import *
 import sys
+from time import sleep
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -21,11 +22,33 @@ def plot_Kamada_Kawai(graph_to_plot):
 	plot(graph_to_plot, **visual_style)
 
 # ---------------------------------------------------------------------------------------
+# Print iterations progress
+def printProgress (iteration, total, prefix = '', suffix = '', decimals = 1, barLength = 100):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        barLength   - Optional  : character length of bar (Int)
+    """
+    formatStr = "{0:." + str(decimals) + "f}"
+    percent = formatStr.format(100 * (iteration / float(total)))
+    filledLength = int(round(barLength * iteration / float(total)))
+    bar = '█' * filledLength + '-' * (barLength - filledLength)
+    sys.stdout.write('\r%s |%s| %s%s %s' % (prefix, bar, percent, '%', suffix)),
+    if iteration == total:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
+
+# ---------------------------------------------------------------------------------------
 
 def determine_community_set(graph, vertex):
 	"""
 	Returns a list of graphs in which the input vertex belongs to.  
-	Computes the communities of the vertex with the Louvain approach.  
+	Computes the communities of the vertex with the Fastgreedy approach.  
 	"""
 	vertex_communities = []
 	# calculate dendrogram
@@ -48,12 +71,12 @@ def determine_community_set(graph, vertex):
 	communities = VertexClustering(graph, membership=my_membership)
 	# print(communities)
 
-	# communities = communities.subgraphs()
-	# for community in communities:
-	# 	# print(community.vs)
-	# 	for node in community.vs:
-	# 		if (node["name"] == vertex["name"]):
-	# 			vertex_communities.append(community)
+	communities = communities.subgraphs()
+	for community in communities:
+		# print(community.vs)
+		for node in community.vs:
+			if (node["name"] == vertex["name"]):
+				vertex_communities.append(community)
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
@@ -66,7 +89,7 @@ def nectar(graph, beta, vertex_ID):
 	# 0) Initialize stuff
 	modified_graph = graph.copy() 
 	vertex = graph.vs[vertex_ID]
-	print("Running nectar on {}".format(vertex))
+	# print("Running nectar on {}".format(vertex))
 	vertex_has_these_edges = []
 	vertex_neighbors = []
 	vertex_neighbors_ID = graph.neighbors(vertex, mode="out")
@@ -157,21 +180,24 @@ def nectar(graph, beta, vertex_ID):
 	# The vertex is actually added into each cluster in the compute_gain function from Step 4). 
 	# Looping through all_gains to add each qualifying cluster into vertex_communities. 
 	# print("\nThese are the gains in modularity")
+	modularities_of_added_clusters = []
 	for ind, gain in enumerate(all_gains):
 		# print(gain)
 		# Cv_element = vertex_communities[ind]
-		if ( gain > 0 ):
+		if ( gain >= (1/beta) ):
 			# print("This community gives sufficient gain >= {}".format(1/beta))
 			vertex_communities.append(all_clusters_gained[ind])
-			print(final_modularities[ind])
+			modularities_of_added_clusters.append(final_modularities[ind])
+			# print("Found new overlapping community for {}".format(vertex))
+			# print("The vertex's additional community has new modularity {}".format( final_modularities[ind]) )
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
 	# (initialized to zero upon start of the larger algorithm).  
-	reset_stable_node_counter = False
+	# reset_stable_node_counter = False
 	# if ( len(vertex_communities) > initial_cardinality_of_vertex_communities ):
 	# 	reset_stable_node_counter = True
-	return vertex_communities, reset_stable_node_counter
+	return vertex_communities, modularities_of_added_clusters
 
 # TODO
 # Needs work on properly merging two subgraphs.  
@@ -240,18 +266,28 @@ def outer_nectar(graph, beta):
 	max_iter = 1 # max times the outer loop is repeated
 	vertex_count = len(graph.vs)
 	while (max_iter > 0 or stable_nodes < vertex_count ):
-		stable_nodes = 0
+		print("Iterating outer MODIFIED nectar portion")
+		stable_nodes = 1
 		nodes_in_graph = graph.vs
 		communities_per_node = []
+		modularities_per_node = []
+		i = 0
+		l = len(nodes_in_graph)
 		for node in nodes_in_graph:
-			(community_set, reset_stable_node_counter) = nectar(graph, beta, node.index)
+			(community_set, modularities_of_added_clusters) = nectar(graph, beta, node.index)
 			communities_per_node.append(community_set)
+			modularities_per_node.append(modularities_of_added_clusters)
+			reset_stable_node_counter = False # TODO:  this needs to be refactored eventually
 			if reset_stable_node_counter:
 				stable_nodes = 0
 			else:
 				stable_nodes += 1
+			# sleep(0.1)
+			# Update Progress Bar
+			# i += 1
+			# printProgress(i, l, prefix = 'Progress:', suffix = 'Complete', barLength = 50)
 		max_iter -= 1
-	return communities_per_node
+	return communities_per_node, modularities_per_node
 
 # # ---------------------------------------------------------------------------------------
 # # Creating the graph G<V,E>
