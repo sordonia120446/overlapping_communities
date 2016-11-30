@@ -1,4 +1,5 @@
 from igraph import *
+import sys
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -27,19 +28,23 @@ def determine_community_set(graph, vertex):
 	Computes the communities of the vertex with the Louvain approach.  
 	"""
 	vertex_communities = []
-	# communities = graph.community_multilevel(weights=graph.es["weight"])
 
-	clique_list = graph.maximal_cliques()
-	for clique in clique_list:
-		if (vertex.index in clique):
-			vertices = list(clique)
-			vertex_communities.append(graph.subgraph(vertices))
+	# Louvian approach
+	communities = graph.community_multilevel(weights=graph.es["weight"])
+	communities = communities.subgraphs()
+	for community in communities:
+		# print(community.vs)
+		for node in community.vs:
+			if (node["name"] == vertex["name"]):
+				vertex_communities.append(community)
 
-	# for community in communities:
-	# 	# print(community.vs)
-	# 	for node in community.vs:
-	# 		if (node["name"] == vertex["name"]):
-	# 			vertex_communities.append(community)
+	# Clique approach
+	# clique_list = graph.maximal_cliques()
+	# for clique in clique_list:
+	# 	if (vertex.index in clique):
+	# 		vertices = list(clique)
+	# 		vertex_communities.append(graph.subgraph(vertices))
+
 	return vertex_communities
 
 # ---------------------------------------------------------------------------------------
@@ -115,13 +120,17 @@ def nectar(graph, beta, vertex_ID):
 	# print(vertex_neighbors_clusters)
 	all_gains = []
 	all_clusters_gained = []
+	final_modularities = []
 	for ind, tmp in enumerate(vertex_neighbors_clusters):
 		# print(modified_clusters[ind]) # wrong
 		# print(modified_clusters[tmp]) # correct
+		cluster_modularity = modified_clusters[tmp].modularity(cluster_membership, weights=modified_clusters[tmp].es["weight"]) 
 		(gain, cluster) = compute_gain(modified_clusters[tmp], cluster_membership, vertex, 
 			vertex_has_these_edges, vertex_neighbors, graph)
 		all_gains.append(gain)
 		all_clusters_gained.append(cluster)
+		final_modularities.append(cluster_modularity + gain)
+		# print(cluster_modularity)
 
 	# 5) Add v to the community maximizing gain
 	# The vertex is actually added into each cluster in the compute_gain function from Step 4). 
@@ -130,9 +139,11 @@ def nectar(graph, beta, vertex_ID):
 	for ind, gain in enumerate(all_gains):
 		# print(gain)
 		# Cv_element = vertex_communities[ind]
+		# print(final_modularities[ind])
 		if ( gain >= (1/beta) ):
 			# print("This community gives sufficient gain >= {}".format(1/beta))
 			vertex_communities.append(all_clusters_gained[ind])
+			print(final_modularities[ind])
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 

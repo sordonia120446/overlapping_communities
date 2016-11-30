@@ -1,4 +1,5 @@
 from igraph import *
+import sys
 """
 Runs on python3.5.  Requires igraph, cairo, and a CPU. 
 """
@@ -29,22 +30,22 @@ def determine_community_set(graph, vertex):
 	vertex_communities = []
 	# calculate dendrogram
 	# my_dendrogram = graph.community_edge_betweenness(directed=False, weights=graph.es["weight"])
-	# my_dendrogram = graph.community_fastgreedy(weights=graph.es["weight"])
-	# # convert it into a flat clustering
-	# communities = my_dendrogram.as_clustering()
-	# my_membership = communities.membership
+	my_dendrogram = graph.community_fastgreedy(weights=graph.es["weight"])
+	# convert it into a flat clustering
+	communities = my_dendrogram.as_clustering()
+	my_membership = communities.membership
 	# modie = graph.modularity(my_membership)
 	# print("The modularity for the graph is {}".format(modie))
 	# print(my_membership)
 
-	clique_list = graph.maximal_cliques()
-	for clique in clique_list:
-		if (vertex.index in clique):
-			vertices = list(clique)
-			vertex_communities.append(graph.subgraph(vertices))
+	# clique_list = graph.maximal_cliques()
+	# for clique in clique_list:
+	# 	if (vertex.index in clique):
+	# 		vertices = list(clique)
+	# 		vertex_communities.append(graph.subgraph(vertices))
 
 	# Convert membership vector into VertexCluster object --> match output of community_multilevel function (Louvian method)
-	# communities = VertexClustering(graph, membership=my_membership)
+	communities = VertexClustering(graph, membership=my_membership)
 	# print(communities)
 
 	# communities = communities.subgraphs()
@@ -108,8 +109,8 @@ def nectar(graph, beta, vertex_ID):
 	# 3) Compute Sv, the set of communities each containing at least one instance of v's neighbors
 	# Sv --> vertex_neighbors_clusters
 
-	my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
-	# my_dendrogram = modified_graph.community_fastgreedy(weights=modified_graph.es["weight"]) # returns a dendogram
+	# my_dendrogram = modified_graph.community_edge_betweenness(directed=False, weights=modified_graph.es["weight"]) # returns a dendogram
+	my_dendrogram = modified_graph.community_fastgreedy(weights=modified_graph.es["weight"]) # returns a dendogram
 	# convert dendogram into a flat clustering
 	communities = my_dendrogram.as_clustering()
 	my_membership = communities.membership
@@ -141,13 +142,16 @@ def nectar(graph, beta, vertex_ID):
 	# print(vertex_neighbors_clusters)
 	all_gains = []
 	all_clusters_gained = []
+	final_modularities = []
 	for ind, tmp in enumerate(vertex_neighbors_clusters):
 		# print(modified_clusters[ind]) # wrong
 		# print(modified_clusters[tmp]) # correct
+		cluster_modularity = modified_clusters[tmp].modularity(cluster_membership, weights=modified_clusters[tmp].es["weight"]) 
 		(gain, cluster) = compute_gain(modified_clusters[tmp], cluster_membership, vertex, 
 			vertex_has_these_edges, vertex_neighbors, graph)
 		all_gains.append(gain)
 		all_clusters_gained.append(cluster)
+		final_modularities.append(cluster_modularity + gain)
 
 	# 5) Add v to the community maximizing gain
 	# The vertex is actually added into each cluster in the compute_gain function from Step 4). 
@@ -156,10 +160,10 @@ def nectar(graph, beta, vertex_ID):
 	for ind, gain in enumerate(all_gains):
 		# print(gain)
 		# Cv_element = vertex_communities[ind]
-		if ( gain >= (1/beta) ):
+		if ( gain > 0 ):
 			# print("This community gives sufficient gain >= {}".format(1/beta))
 			vertex_communities.append(all_clusters_gained[ind])
-			# plot_Kamada_Kawai(all_clusters_gained[ind])
+			print(final_modularities[ind])
 
 	# 6.	Check if this “new” community set Cv’ is equal to the original 
 	# one found in Step 1.  If so, increment the stable node counter by one 
